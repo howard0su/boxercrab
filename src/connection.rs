@@ -1,7 +1,7 @@
 use bytes::{BufMut, Bytes, BytesMut};
 use sqlx::mysql::MySqlPoolOptions;
 use sqlx::Connection as SQLConnection;
-use sqlx::MySqlConnection;
+use sqlx::{Executor, MySqlConnection};
 use std::error::Error;
 
 #[derive(Debug)]
@@ -29,16 +29,17 @@ impl Connection {
         conn.ping().await?;
 
         // send a query to tell master we can handle checksum
-        let mut enable_checksum = BytesMut::with_capacity(100);
-        enable_checksum.put_u8(0x03);
-        enable_checksum.put(&b"set @master_binlog_checksum= @@global.binlog_checksum"[..]);
-        conn.stream.send_packet(enable_checksum.as_ref()).await?;
+        let _ = conn
+            .execute("set @master_binlog_checksum= @@global.binlog_checksum")
+            .await?;
 
         self.conn = Some(conn);
         Ok(())
     }
 
     pub async fn recv(&mut self) -> Result<Bytes, Box<dyn Error>> {
+        unimplemented!();
+        /*
         if self.conn.is_none() {
             self.connect().await?;
         }
@@ -77,5 +78,6 @@ impl Connection {
 
         let bytes = self.conn.as_mut().unwrap().stream.recv_packet().await?;
         Ok(bytes.0)
+         */
     }
 }

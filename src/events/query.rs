@@ -1,4 +1,4 @@
-use crate::utils::{string_var, extract_string, pu32, string_nul};
+use crate::utils::{extract_string, pu32, string_nul, string_var};
 use nom::{
     bytes::complete::take,
     combinator::map,
